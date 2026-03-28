@@ -12,7 +12,9 @@ Implementar o lado cliente de um sistema TFTP cliente-servidor, permitindo:
 - tratamento de pacotes TFTP como `RRQ`, `WRQ`, `DATA`, `ACK` e `ERROR`;
 - execução de testes com servidor externo e com o servidor desenvolvido pelo outro grupo.
 
-# Diagrama de Componentes C4
+## Diagrama de Componentes C4
+
+![Diagrama C4 do cliente](docs/c4-client-diagram.png)
 
 ## Organização do projeto
 
