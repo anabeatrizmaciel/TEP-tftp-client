@@ -1,21 +1,21 @@
-# exceções personalizadas do cliente TFTP
+"""Exceções personalizadas do cliente TFTP."""
 
 
 class TFTPClientError(Exception):
-    """erro base do cliente TFTP"""
+    """Erro base do cliente TFTP."""
 
 
 class InvalidCommandError(TFTPClientError):
-    """erro para comando inválido na CLI"""
+    """Comando inválido informado na CLI."""
 
 
 class ProtocolError(TFTPClientError):
-    """erro de protocolo TFTP: inserir lógica"""
+    """Erro na construção, leitura ou validação de pacotes TFTP."""
 
 
 class TransportError(TFTPClientError):
-    """erro de rede/UDP: inserir lógica"""
+    """Falha de comunicação via rede."""
 
 
 class FileError(TFTPClientError):
-    """erro de leitura/gravação de arquivos: inserir lógica"""
+    """Falha ao ler ou gravar arquivos."""
