@@ -14,7 +14,6 @@ class FakeSocket:
         self.timeout = timeout
 
     def sendto(self, payload, addr):
-        # PRINT ADICIONADO PARA VERMOS O ENVIO
         print(f"\n[REDE -> ENVIO] A enviar para {addr}: {payload}")
         self.sent.append((payload, addr))
 
@@ -22,7 +21,6 @@ class FakeSocket:
         if not self.responses:
             raise TimeoutError("Sem mais respostas")
         data, addr = self.responses.pop(0)
-        # PRINT ADICIONADO PARA VERMOS A RECEÇÃO
         print(f"[REDE <- RECEÇÃO] Recebido de {addr}: {data}")
         return data, addr
 
@@ -56,7 +54,6 @@ class FakeFiles:
         return self.content
 
     def write_bytes(self, path, data):
-        # PRINT ADICIONADO PARA VERMOS A ESCRITA NO DISCO
         print(f"[DISCO] A guardar ficheiro '{path}' com os dados: {data}")
         self.written = (path, data)
 
@@ -112,7 +109,6 @@ def test_download_flow_writes_file():
 
     assert data == b"hello"
     assert client.files.written == ("local.txt", b"hello")
-    # \x00\x01 garante que não há bytes nulos invisíveis
     assert client.transport.socket.sent[0][0][:2] == b"\x00\x01"
     assert client.transport.socket.sent[1][0] == build_ack(1)
 
@@ -130,7 +126,6 @@ def test_upload_flow_sends_data_blocks():
 
     assert response == build_ack(0) + build_ack(1)
     sent_packets = [packet for packet, _ in client.transport.socket.sent]
-    # \x00\x02 garante que não há bytes nulos invisíveis
     assert sent_packets[0][:2] == b"\x00\x02"  # WRQ
     assert sent_packets[1].startswith(b"\x00\x03\x00\x01") # DATA bloco 1
 
