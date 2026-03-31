@@ -3,7 +3,6 @@ from tftp_client.client import TFTPClient
 from tftp_client.errors import ProtocolError, TransportError
 from tftp_client.protocol import build_ack, build_data, build_error
 
-
 class FakeSocket:
     def __init__(self, responses):
         self.responses = list(responses)
@@ -15,12 +14,17 @@ class FakeSocket:
         self.timeout = timeout
 
     def sendto(self, payload, addr):
+        # PRINT ADICIONADO PARA VERMOS O ENVIO
+        print(f"\n[REDE -> ENVIO] A enviar para {addr}: {payload}")
         self.sent.append((payload, addr))
 
     def recvfrom(self, buffer_size):
         if not self.responses:
-            raise TimeoutError("no more responses")
-        return self.responses.pop(0)
+            raise TimeoutError("Sem mais respostas")
+        data, addr = self.responses.pop(0)
+        # PRINT ADICIONADO PARA VERMOS A RECEÇÃO
+        print(f"[REDE <- RECEÇÃO] Recebido de {addr}: {data}")
+        return data, addr
 
     def close(self):
         self.closed = True
@@ -52,9 +56,12 @@ class FakeFiles:
         return self.content
 
     def write_bytes(self, path, data):
+        # PRINT ADICIONADO PARA VERMOS A ESCRITA NO DISCO
+        print(f"[DISCO] A guardar ficheiro '{path}' com os dados: {data}")
         self.written = (path, data)
 
     def iter_chunks(self, path, chunk_size=512):
+        print(f"[DISCO] A ler o ficheiro '{path}' para envio...")
         if not self.content:
             yield b""
             return
@@ -75,19 +82,23 @@ class FlakyTransport:
         return self
 
     def send(self, sock, payload, host, port):
+        print(f"\n[REDE INSTÁVEL -> ENVIO] A tentar enviar: {payload}")
         self.sent_packets.append(payload)
 
     def receive(self, sock):
         if self.failures_simulated < self.fail_times:
             self.failures_simulated += 1
+            print(f"[REDE INSTÁVEL !!] Falha simulada na rede. O pacote perdeu-se! (Falha {self.failures_simulated}/{self.fail_times})")
             raise TransportError("Tempo limite excedido")
         if not self.success_responses:
             raise TimeoutError("Sem mais respostas mockadas")
-        return self.success_responses.pop(0)
+        
+        data, addr = self.success_responses.pop(0)
+        print(f"[REDE INSTÁVEL <- RECEÇÃO] Sucesso! Recebido de {addr}: {data}")
+        return data, addr
 
     def close(self):
         pass
-
 
 def test_download_flow_writes_file():
     responses = [
