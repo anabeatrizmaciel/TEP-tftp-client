@@ -73,3 +73,39 @@ python -m tftp_client.main --help
 python -m tftp_client.main get 192.168.0.10 arquivo.txt
 python -m tftp_client.main put 192.168.0.10 arquivo.txt
 ```
+
+## Testes e Qualidade
+
+O projeto possui testes automatizados com `pytest`, cobrindo protocolo, transporte UDP, cliente, manipulação de arquivos e CLI.
+
+Se ainda não tiver o `pytest` instalado:
+
+```bash
+python -m pip install pytest
+```
+
+Execução rápida de toda a suíte:
+
+```bash
+python -m pytest
+```
+
+Execução detalhada (útil para depuração):
+
+```bash
+python -m pytest -v -s
+```
+
+Executar apenas um arquivo de teste:
+
+```bash
+python -m pytest tests/test_protocol.py
+```
+
+Cobertura dos testes atuais:
+
+- `tests/test_protocol.py`: montagem e parsing de pacotes TFTP (`RRQ`, `WRQ`, `DATA`, `ACK`, `ERROR`).
+- `tests/test_transport.py`: envio/recebimento UDP, timeouts e cenários de retransmissão.
+- `tests/test_client.py`: fluxo de download/upload e integração entre camadas.
+- `tests/test_files.py`: leitura, escrita e validações de arquivos locais.
+- `tests/test_cli.py`: argumentos de linha de comando e comportamento da interface CLI.
