@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import socket
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from .errors import FileError, ProtocolError, TFTPClientError, TransportError
 from .files import FileManager
@@ -27,7 +26,6 @@ from .protocol import (
 )
 from .transport import UDPTransport
 
-
 @dataclass
 class TFTPClient:
     host: str
@@ -42,7 +40,6 @@ class TFTPClient:
         self.transport.timeout = self.timeout
 
     def get_file(self, remote_filename: str, local_filename: str | None = None) -> bytes:
-        """Baixa um arquivo do servidor TFTP usando o fluxo RRQ/DATA/ACK."""
         request = build_rrq(remote_filename, self.mode)
         chunks: list[bytes] = []
         server_peer = (self.host, self.port)
@@ -91,7 +88,6 @@ class TFTPClient:
         return content
 
     def put_file(self, local_filename: str, remote_filename: str | None = None) -> bytes:
-        """Envia um arquivo ao servidor TFTP usando o fluxo WRQ/ACK/DATA."""
         remote_name = remote_filename or local_filename
         request = build_wrq(remote_name, self.mode)
         server_peer = (self.host, self.port)
@@ -103,7 +99,8 @@ class TFTPClient:
             ack0 = self._wait_for_ack(sock, server_peer, last_sent, expected_block=0)
             server_peer = ack0[1]
 
-            response_bytes = bytearray()
+            # Inicializa a resposta com o ack0 incluído
+            response_bytes = bytearray(ack0[0])
             block = 1
             for chunk in self.files.iter_chunks(local_filename, MAX_DATA_SIZE):
                 data_packet = build_data(block, chunk)
@@ -178,5 +175,7 @@ class TFTPClient:
 
     @staticmethod
     def _protocol_error_from_packet(packet: Packet) -> ProtocolError:
-        code, message = parse_error(packet.payload)
+        # Reconstrói o pacote completo para que o parse_error possa validar o opcode
+        full_packet = bytes([0, packet.opcode]) + packet.payload
+        code, message = parse_error(full_packet)
         return ProtocolError(f"Servidor TFTP retornou ERROR {code}: {message}")
