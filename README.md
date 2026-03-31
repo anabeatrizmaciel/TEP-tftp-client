@@ -105,7 +105,7 @@ options:
 Download de um arquivo do servidor:
 
 ```bash
-python -m tftp_client.main get 192.168.0.10 arquivo.txt
+python -m tftp_client.main get 192.168.0.10 arquivo.txt --port 69 --remote-name arquivo.txt
 ```
 
 Upload de um arquivo para o servidor:
